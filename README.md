@@ -65,7 +65,7 @@ SimpleImputer(strategy='most_frequent')
 
 De esta manera se reemplazaron los valores faltantes por la categoría que aparece con mayor frecuencia.
 
-Codificación de variables categóricas
+### Codificación de variables categóricas
 
 Las variables categóricas fueron transformadas mediante One-Hot Encoding utilizando:
 
@@ -73,7 +73,7 @@ OneHotEncoder(handle_unknown='ignore', sparse_output=False)
 
 El parámetro handle_unknown='ignore' permite procesar categorías que puedan aparecer posteriormente en los datos de prueba y que no hayan sido observadas durante el entrenamiento.
 
-Estandarización de variables numéricas
+### Estandarización de variables numéricas
 
 Las variables numéricas fueron estandarizadas utilizando:
 
@@ -89,7 +89,7 @@ Las transformaciones fueron ajustadas únicamente con X_train y posteriormente a
 
 De esta forma, las estadísticas utilizadas para la imputación y estandarización no se calculan utilizando información del conjunto de prueba.
 
-Resultado del preprocesamiento
+### Resultado del preprocesamiento
 
 Después de aplicar las transformaciones se obtuvieron:
 
