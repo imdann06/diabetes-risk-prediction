@@ -109,3 +109,45 @@ test_preprocesado.csv
 preprocesador_diabetes.pkl
 
 El archivo preprocesador_diabetes.pkl contiene el preprocesador ajustado con los datos de entrenamiento y permite aplicar posteriormente las mismas transformaciones a nuevos datos.
+
+
+## Modelado y Evaluación
+**Responsable:** Salo
+
+Después de la partición y el preprocesamiento de los datos, se procedió a la construcción, entrenamiento y evaluación de los modelos de clasificación.
+
+### Modelo base (baseline)
+
+Antes de desarrollar el modelo principal se construyó un modelo base utilizando `DummyClassifier` con la estrategia `most_frequent`, el cual predice siempre la clase más frecuente del conjunto de entrenamiento (High). El propósito de este modelo es contar con un punto de comparación mínimo que permita determinar si el modelo principal realmente aporta una mejora.
+
+### Modelo principal: Random Forest
+
+Como modelo principal se seleccionó `RandomForestClassifier`, configurado con 100 árboles de decisión (`n_estimators=100`) y `random_state=42` para garantizar la reproducibilidad de los resultados. Random Forest construye múltiples árboles entrenados con distintas muestras de los datos y combina sus resultados mediante votación para generar la predicción final.
+
+Se evaluó también la variante con el parámetro `class_weight='balanced'`, con el fin de mejorar la detección de la clase minoritaria (Low). Sin embargo, esta configuración obtuvo un desempeño ligeramente inferior, por lo que se descartó y se conservó el modelo sin este parámetro.
+
+### Métrica de evaluación
+
+Se utilizó **F1-Score Macro** como métrica principal, complementada con Accuracy y la matriz de confusión. Se priorizó F1 macro sobre accuracy debido a que el problema es de clasificación multiclase con un desbalance considerable entre las categorías de riesgo, por lo que accuracy puede ocultar un desempeño deficiente en las clases minoritarias.
+
+### Resultados
+
+| Métrica | Baseline | Random Forest |
+|---|---|---|
+| Accuracy | 0.7319 | 0.8966 |
+| F1-Score Macro | 0.2817 | 0.5699 |
+| Mejora en F1 macro | | **+0.2882** |
+
+La variable objetivo presenta un desbalance considerable: la clase **Low** representa menos del 1% de los registros de entrenamiento (376 de 40.000), frente a High (29.274) y Moderate (10.350). Esto explica que tanto el baseline como el Random Forest no logren identificar correctamente ningún caso de la clase Low, lo cual afecta directamente el valor del F1 macro obtenido.
+
+### Prevención de fuga de información
+
+El modelo se entrenó utilizando únicamente los datos de entrenamiento ya preprocesados por el equipo. El preprocesador, previamente ajustado solo con `X_train`, se integró junto con el modelo entrenado dentro de un mismo `Pipeline`, de forma que las transformaciones aplicadas a nuevos datos sean exactamente las mismas que se ajustaron durante el entrenamiento, sin recalcular ninguna estadística sobre el conjunto de prueba.
+
+### Almacenamiento del modelo
+
+El modelo final se almacenó integrando el preprocesador y el clasificador entrenado dentro de un único `Pipeline`, exportado mediante `joblib` (con compresión, para reducir el tamaño del archivo) en la ruta `fase-1/modelo.joblib`. Se verificó que el modelo almacenado puede cargarse nuevamente y generar predicciones correctas utilizando datos sin preprocesar, confirmando que el artefacto está listo para su reutilización en las siguientes fases del proyecto.
+
+### Archivos generados
+
+- `fase-1/modelo.joblib`
