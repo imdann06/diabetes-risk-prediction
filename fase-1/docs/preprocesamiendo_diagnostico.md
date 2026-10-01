@@ -189,3 +189,4 @@ Como resultado del proceso se generaron los siguientes archivos:
 `preprocesador_diabetes.pkl` contiene el `ColumnTransformer` ajustado con los datos de entrenamiento para poder aplicar las mismas transformaciones posteriormente.
 
 
+
