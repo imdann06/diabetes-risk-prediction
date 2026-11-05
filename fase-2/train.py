@@ -1,7 +1,5 @@
 """Entrenamiento del modelo de riesgo de diabetes (Fase 2).
 
-Uso (desde la carpeta fase-2, en una sola línea):
-
     python train.py --data data/datos.csv --target Diabetes_Risk \
         --output-dir models --version v1 --seed 42
 
