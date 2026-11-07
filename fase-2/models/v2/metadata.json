@@ -1,0 +1,133 @@
+{
+  "version": "v2",
+  "created_at": "2026-11-05T20:39:43.366967+00:00",
+  "problem_type": "clasificación multiclase",
+  "target": "Diabetes_Risk",
+  "classes": [
+    "High",
+    "Low",
+    "Moderate"
+  ],
+  "algorithm": "RandomForestClassifier",
+  "pipeline_steps": [
+    "ColumnTransformer(imputación + StandardScaler + OneHotEncoder)",
+    "RandomForestClassifier"
+  ],
+  "model_params": {
+    "n_estimators": 100,
+    "class_weight": "balanced",
+    "min_samples_leaf": 5,
+    "random_state": 7
+  },
+  "seed": 7,
+  "missing_values_strategy": {
+    "numeric": "mediana (SimpleImputer)",
+    "categorical": "moda (SimpleImputer most_frequent)",
+    "unseen_categories": "ignoradas por OneHotEncoder (handle_unknown='ignore')"
+  },
+  "input_features": {
+    "numeric": [
+      "Age",
+      "Height_cm",
+      "Weight_kg",
+      "BMI",
+      "Waist_Circumference_cm",
+      "Blood_Glucose",
+      "HbA1c",
+      "Fasting_Blood_Sugar",
+      "Insulin_Level",
+      "Blood_Pressure_Systolic",
+      "Blood_Pressure_Diastolic",
+      "Total_Cholesterol",
+      "HDL",
+      "LDL",
+      "Triglycerides",
+      "Heart_Rate",
+      "Exercise_Hours_Per_Week",
+      "Daily_Walking_Minutes",
+      "Sleep_Hours",
+      "Daily_Water_Intake_L"
+    ],
+    "categorical": [
+      "Gender",
+      "Country",
+      "Physical_Activity_Level",
+      "Diet_Quality",
+      "Sugar_Intake_Level",
+      "Stress_Level",
+      "Smoking_Status",
+      "Alcohol_Consumption",
+      "Family_History_Diabetes",
+      "Hypertension",
+      "Heart_Disease",
+      "Fatty_Liver",
+      "PCOS",
+      "Medication_Adherence",
+      "Work_Type",
+      "Residence_Type"
+    ],
+    "dtypes": {
+      "Age": "float64",
+      "Gender": "object",
+      "Country": "object",
+      "Height_cm": "float64",
+      "Weight_kg": "float64",
+      "BMI": "float64",
+      "Waist_Circumference_cm": "float64",
+      "Blood_Glucose": "float64",
+      "HbA1c": "float64",
+      "Fasting_Blood_Sugar": "float64",
+      "Insulin_Level": "float64",
+      "Blood_Pressure_Systolic": "int64",
+      "Blood_Pressure_Diastolic": "int64",
+      "Total_Cholesterol": "float64",
+      "HDL": "float64",
+      "LDL": "float64",
+      "Triglycerides": "float64",
+      "Heart_Rate": "int64",
+      "Physical_Activity_Level": "object",
+      "Exercise_Hours_Per_Week": "float64",
+      "Daily_Walking_Minutes": "float64",
+      "Diet_Quality": "object",
+      "Sugar_Intake_Level": "object",
+      "Sleep_Hours": "float64",
+      "Stress_Level": "object",
+      "Smoking_Status": "object",
+      "Alcohol_Consumption": "object",
+      "Family_History_Diabetes": "object",
+      "Hypertension": "object",
+      "Heart_Disease": "object",
+      "Fatty_Liver": "object",
+      "PCOS": "object",
+      "Medication_Adherence": "object",
+      "Work_Type": "object",
+      "Residence_Type": "object",
+      "Daily_Water_Intake_L": "float64"
+    }
+  },
+  "excluded_columns": [
+    "Patient_ID",
+    "Diabetes_Risk_Score",
+    "Doctor_Consultation_Needed",
+    "AI_Health_Recommendation"
+  ],
+  "data": {
+    "file": "diabetes_risk_prediction_dataset.csv",
+    "sha256": "131438e6c7001ea2b2ff91042d55bcbb51967d5744b7dcb8d5425183565b3f05",
+    "n_rows": 50000,
+    "n_features": 36
+  },
+  "split": {
+    "strategy": "train_test_split estratificado",
+    "test_size": 0.2,
+    "n_train": 40000,
+    "n_test": 10000,
+    "random_state": 7
+  },
+  "evaluation_metric": "f1_macro",
+  "python_version": "3.13.18",
+  "scikit_learn_version": "1.6.1",
+  "requirements_file": "requirements.txt",
+  "git_commit": null,
+  "reproducibility_note": "Random Forest es estocástico; con la misma semilla, datos y versiones de librerías los resultados son consistentes."
+}

@@ -1,6 +1,20 @@
 # diabetes-risk-prediction
 Proyecto de Machine Learning para predecir el nivel de riesgo de diabetes a partir de factores clínicos, demográficos y de estilo de vida.
 
+## Integrantes
+
+- Daniel Diaz Escobar
+- Maria Fernanda Echeverri Osorio
+- Salome Toro Cadavid
+
+## Fuente y naturaleza del conjunto de datos
+
+Se utiliza el conjunto **Diabetes Risk Prediction Dataset (50K patients)**, disponible en Kaggle:
+
+https://www.kaggle.com/datasets/mobeenfatimah/diabetes-risk-prediction-dataset-50k-patients
+
+El conjunto contiene 50.000 registros y 41 columnas. **Los registros son sintéticos, generados mediante reglas y procesos de simulación; no corresponden a pacientes reales ni a historias clínicas reales.** La etiqueta `Diabetes_Risk` representa las categorías de riesgo definidas por las reglas de generación del conjunto. Por esta razón, los resultados del proyecto son únicamente académicos y experimentales; no constituyen diagnóstico, tamizaje ni validación clínica.
+
 ## Partición de los datos
 
 Responsable: Mafe
@@ -111,6 +125,31 @@ preprocesador_diabetes.pkl
 El archivo preprocesador_diabetes.pkl contiene el preprocesador ajustado con los datos de entrenamiento y permite aplicar posteriormente las mismas transformaciones a nuevos datos.
 
 
+## Análisis Exploratorio de Datos (EDA)
+
+**Responsable: Daniel**
+
+El análisis exploratorio se realizó sobre los 50.000 registros originales. No se encontraron filas duplicadas y se identificaron 20.810 valores faltantes distribuidos en 14 variables.
+
+### Distribución de la variable objetivo
+
+| Categoría | Registros | Porcentaje |
+|---|---:|---:|
+| High | 36.593 | 73,19% |
+| Moderate | 12.937 | 25,87% |
+| Low | 470 | 0,94% |
+
+La clase `Low` representa menos del 1% del conjunto, por lo que existe un desbalance importante. Por esta razón se utiliza F1-macro y se revisan los resultados por clase, en lugar de interpretar únicamente accuracy.
+
+### Hallazgos exploratorios
+
+- Las medianas de `Fasting_Blood_Sugar` son 84,25 para Low, 100,60 para Moderate y 155,00 para High.
+- También se observan medianas mayores de `HbA1c`, `Age` y `BMI` en High frente a Low.
+- Al codificar la etiqueta como ordinal (Low=0, Moderate=1, High=2), las correlaciones lineales más altas con los predictores numéricos corresponden a `Fasting_Blood_Sugar` (0,380), `HbA1c` (0,275), `Age` (0,211) y `BMI` (0,161).
+- La tasa de celdas faltantes en las 14 variables afectadas es similar entre las clases: 2,90% en Low, 2,99% en Moderate y 2,97% en High. En Low se identifican 191 celdas faltantes de 6.580 posibles en esas variables. Aunque la tasa no es superior, la clase tiene solo 470 registros, por lo que cada caso representa una proporción mayor de esa clase.
+
+Estos hallazgos describen patrones del dataset sintético y no deben interpretarse como relaciones causales ni como evidencia clínica. Las gráficas de distribuciones, comparaciones por categoría, correlaciones y la tabla detallada de faltantes por clase se encuentran en el notebook `fase-1/notebooks/01_diabetes_risk_pipeline.ipynb`.
+
 ## Modelado y Evaluación
 **Responsable:** Salo
 
@@ -124,7 +163,7 @@ Antes de desarrollar el modelo principal se construyó un modelo base utilizando
 
 Como modelo principal se seleccionó `RandomForestClassifier`, configurado con 100 árboles de decisión (`n_estimators=100`) y `random_state=42` para garantizar la reproducibilidad de los resultados. Random Forest construye múltiples árboles entrenados con distintas muestras de los datos y combina sus resultados mediante votación para generar la predicción final.
 
-Se evaluó también la variante con el parámetro `class_weight='balanced'`, con el fin de mejorar la detección de la clase minoritaria (Low). Sin embargo, esta configuración obtuvo un desempeño ligeramente inferior, por lo que se descartó y se conservó el modelo sin este parámetro.
+La comparación entre `class_weight=None` y `class_weight='balanced'` se incorporó como experimento reproducible en el script `fase-2/train.py`, mediante validación cruzada sobre el conjunto de entrenamiento. La prueba final se reserva para la evaluación de la configuración seleccionada.
 
 ### Métrica de evaluación
 
@@ -146,8 +185,8 @@ El modelo se entrenó utilizando únicamente los datos de entrenamiento ya prepr
 
 ### Almacenamiento del modelo
 
-El modelo final se almacenó integrando el preprocesador y el clasificador entrenado dentro de un único `Pipeline`, exportado mediante `joblib` (con compresión, para reducir el tamaño del archivo) en la ruta `fase-1/modelo.joblib`. Se verificó que el modelo almacenado puede cargarse nuevamente y generar predicciones correctas utilizando datos sin preprocesar, confirmando que el artefacto está listo para su reutilización en las siguientes fases del proyecto.
+El modelo final se almacenó integrando el preprocesador y el clasificador entrenado dentro de un único `Pipeline`, exportado mediante `joblib` (con compresión, para reducir el tamaño del archivo) en la ruta `fase-1/model/modelo.joblib`. Se verificó que el modelo almacenado puede cargarse nuevamente y generar predicciones correctas utilizando datos sin preprocesar, confirmando que el artefacto está listo para su reutilización en las siguientes fases del proyecto.
 
 ### Archivos generados
 
-- `fase-1/modelo.joblib`
+- `fase-1/model/modelo.joblib`
