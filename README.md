@@ -190,3 +190,235 @@ El modelo final se almacenó integrando el preprocesador y el clasificador entre
 ### Archivos generados
 
 - `fase-1/model/modelo.joblib`
+
+# Fase 2. Entrenamiento y aplicación del modelo
+
+## 1. Objetivo
+
+La segunda fase del proyecto tiene como objetivo convertir el proceso de
+aprendizaje automático desarrollado en la Fase 1 en una aplicación
+reproducible y reutilizable.
+
+Para ello, se separan las responsabilidades de entrenamiento y
+predicción en dos scripts independientes:
+
+-   `train.py`: realiza el entrenamiento, evaluación y almacenamiento de
+    versiones del modelo.
+-   `predict.py`: carga una versión previamente entrenada y genera
+    predicciones sobre nuevos datos, sin volver a entrenar el modelo.
+
+El preprocesamiento se integra dentro del pipeline de aprendizaje
+automático, de manera que las transformaciones aprendidas durante el
+entrenamiento se reutilizan durante la predicción.
+
+## 2. Estructura de la Fase 2
+
+``` text
+fase-2/
+│
+├── data/
+│   └── ejemplo_prediccion.csv
+│
+├── models/
+│   ├── v1/
+│   │   ├── modelo.joblib
+│   │   ├── metadata.json
+│   │   └── metrics.json
+│   │
+│   └── v2/
+│       ├── modelo.joblib
+│       ├── metadata.json
+│       └── metrics.json
+│
+├── tests/
+│   └── test_aplicacion.py
+│
+├── predict.py
+├── train.py
+├── requirements.txt
+├── Dockerfile
+└── .dockerignore
+```
+
+## 3. Entrenamiento del modelo
+
+El archivo `train.py` permite ejecutar el entrenamiento de manera
+independiente, sin necesidad de ejecutar previamente el notebook de la
+Fase 1.
+
+El script realiza las siguientes actividades:
+
+1.  Recibe los datos y los parámetros de entrenamiento.
+2.  Separa los datos de entrenamiento y prueba.
+3.  Construye un pipeline que incluye el preprocesamiento y el modelo.
+4.  Compara configuraciones de entrenamiento mediante validación cruzada
+    sobre los datos de entrenamiento.
+5.  Selecciona la configuración con mejores resultados.
+6.  Evalúa el modelo seleccionado sobre el conjunto de prueba.
+7.  Compara sus resultados con un modelo base (`DummyClassifier`).
+8.  Guarda el modelo, las métricas y los metadatos de la versión.
+
+El preprocesamiento se ajusta utilizando únicamente los datos de
+entrenamiento, evitando que la información del conjunto de prueba
+influya en las transformaciones.
+
+### Consultar los argumentos disponibles
+
+Desde la carpeta `fase-2`:
+
+``` bash
+python train.py --help
+```
+
+### Ejemplo de ejecución
+
+``` bash
+python train.py --data RUTA_DEL_DATASET.csv --target Diabetes_Risk --output-dir models --version v3 --seed 42
+```
+
+La ruta del dataset debe reemplazarse por la ubicación del archivo CSV
+que se desea utilizar. Los argumentos opcionales disponibles pueden
+consultarse con `--help`.
+
+## 4. Sistema de versionamiento
+
+Cada entrenamiento genera una carpeta independiente para almacenar los
+resultados de una versión del modelo.
+
+Cada versión contiene:
+
+  -----------------------------------------------------------------------
+  Archivo                             Descripción
+  ----------------------------------- -----------------------------------
+  `modelo.joblib`                     Pipeline entrenado, incluyendo
+                                      preprocesamiento y modelo.
+
+  `metrics.json`                      Métricas de evaluación del modelo y
+                                      del modelo base.
+
+  `metadata.json`                     Información identificadora y
+                                      configuración de la versión.
+  -----------------------------------------------------------------------
+
+El sistema evita sobrescribir versiones existentes. Si se intenta crear
+una versión que ya existe, el entrenamiento genera un error y conserva
+los archivos anteriores.
+
+Actualmente, el repositorio contiene dos versiones identificadas: `v1` y
+`v2`.
+
+## 5. Predicción
+
+El archivo `predict.py` permite utilizar un modelo previamente entrenado
+para generar predicciones sobre nuevos registros.
+
+Su funcionamiento consiste en:
+
+1.  Cargar el pipeline guardado mediante `joblib`.
+2.  Leer los datos de entrada desde un archivo CSV.
+3.  Validar que la entrada pueda procesarse.
+4.  Aplicar las transformaciones previamente aprendidas.
+5.  Generar las predicciones.
+6.  Guardar los resultados en un archivo CSV.
+
+El script no vuelve a ajustar el preprocesador ni entrena nuevamente el
+modelo.
+
+### Consultar los argumentos disponibles
+
+``` bash
+python predict.py --help
+```
+
+### Archivo de ejemplo
+
+Se incluye `fase-2/data/ejemplo_prediccion.csv`, que contiene variables
+predictoras para probar el proceso de predicción sin proporcionar la
+variable objetivo.
+
+## 6. Dependencias
+
+Las dependencias necesarias se encuentran en `requirements.txt`.
+
+Para preparar el entorno:
+
+``` bash
+python -m pip install -r requirements.txt
+```
+
+Las principales librerías utilizadas son:
+
+-   Pandas: manipulación de datos.
+-   NumPy: operaciones numéricas.
+-   Scikit-learn: entrenamiento, evaluación y preprocesamiento.
+-   Joblib: almacenamiento y carga del pipeline.
+-   Pytest: ejecución de pruebas automatizadas.
+
+## 7. Pruebas automatizadas
+
+Se implementaron cinco pruebas automatizadas mediante `pytest`, ubicadas
+en:
+
+``` text
+fase-2/tests/test_aplicacion.py
+```
+
+Las pruebas verifican:
+
+1.  Guardado del modelo, métricas y metadatos.
+2.  Carga del modelo y generación de predicciones.
+3.  Procesamiento de valores nulos mediante el pipeline.
+4.  Manejo de entradas inválidas.
+5.  Protección del versionamiento para evitar sobrescribir modelos
+    existentes.
+
+### Ejecución de las pruebas
+
+Desde la carpeta `fase-2`:
+
+``` bash
+python -m pytest -v
+```
+
+**Resultado de ejecución local:**
+
+``` text
+collected 5 items
+
+5 passed in 45.06s
+```
+
+Las cinco pruebas fueron ejecutadas correctamente en el entorno local.
+
+## 8. Contenerización con Docker
+
+La Fase 2 incluye un `Dockerfile` para preparar un entorno de ejecución
+independiente de la configuración local.
+
+También se incluye `.dockerignore` para excluir archivos innecesarios
+durante la construcción de la imagen.
+
+La construcción de la imagen y las pruebas de entrenamiento, predicción
+y persistencia dentro del contenedor deben validarse antes de considerar
+completada esta sección.
+
+## 9. Integración y control de versiones
+
+El desarrollo se organiza mediante ramas de Git y Pull Requests.
+
+Los cambios se realizan en ramas independientes y se integran a través
+de solicitudes de revisión, evitando modificaciones directas sobre las
+ramas principales.
+
+La integración final de la entrega debe contar con la revisión y
+aprobación de otro integrante del equipo.
+
+## 10. Resultado de la Fase 2
+
+La segunda fase permite utilizar el modelo de clasificación de riesgo de
+diabetes como un componente independiente del notebook original.
+
+La separación entre entrenamiento, predicción, preprocesamiento y
+almacenamiento de versiones facilita la reproducibilidad del proyecto y
+su futura integración con una API REST mediante servicios como
+`/health`, `/predict` y `/train`.
