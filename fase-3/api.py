@@ -83,24 +83,19 @@ def predict(paciente: PacienteInput):
 def train_new_version():
     if not DATA_PATH.is_file():
         raise HTTPException(status_code=503, detail=f"Dataset de entrenamiento no encontrado en {DATA_PATH}")
-    
-    # Buscar siguiente versión disponible sin sobrescribir (v1, v2, v3...)
-    idx = 1
-    while (MODELS_DIR / f"v{idx}").exists():
-        idx += 1
-    nueva_version = f"v{idx}"
 
     try:
         parser = build_parser()
         args = parser.parse_args([
             "--data", str(DATA_PATH),
             "--output-dir", str(MODELS_DIR),
-            "--version", nueva_version,
+            "--version", "auto",  # train.py asigna el siguiente identificador libre (v3, v4...)
             "--seed", "42"
         ])
-        run_training(args)
-        return {"mensaje": "Entrenamiento completado", "version": nueva_version}
+        version_dir = run_training(args)
+        return {"mensaje": "Entrenamiento completado", "version": version_dir.name}
     except TrainingError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en entrenamiento: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error en entrenamiento: {str(e)}")
