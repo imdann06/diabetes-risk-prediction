@@ -155,9 +155,6 @@ el modelo cargó y predijo sin errores.
 
 **Construcción de la imagen (paso 1):** completada con `docker build -t diabetes-fase2 ./fase-2`.
 
-```text
-<PEGAR las últimas líneas de evidencia_1_build.txt>
-```
 
 **Inicio del contenedor (paso 2)**
 
@@ -181,9 +178,7 @@ Predicciones generadas exitosamente (2 filas). Guardadas en: salida/predicciones
 
 Contenido de `fase-2/salida/predicciones.csv` (columna `prediccion`):
 
-```text
-<PEGAR la columna prediccion de las 2 filas>
-```
+
 
 **Pruebas dentro del contenedor (paso 5)** — salida resumida (se omite la lista de columnas del mensaje de error):
 
