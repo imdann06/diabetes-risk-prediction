@@ -81,6 +81,9 @@ def cliente(tmp_path_factory):
     mp = pytest.MonkeyPatch()
     mp.setattr(api, "MODELS_DIR", trabajo / "models")
     mp.setattr(api, "ACTIVE_VERSION", VERSION_PRUEBA)
+    # Fase 4: /predict registra cada llamada; se redirige el registro a una carpeta
+    # temporal para que las pruebas no ensucien fase-4/logs/logs_predicciones.csv.
+    mp.setenv("LOG_PREDICCIONES", str(trabajo / "logs" / "logs_predicciones.csv"))
     try:
         yield TestClient(api.app)
     finally:
